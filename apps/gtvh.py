@@ -40,7 +40,7 @@ layout = html.Div([
             )
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
-    
+    html.Br(),
     dcc.Graph(
         id= 'gtvh',
         figure= {}
