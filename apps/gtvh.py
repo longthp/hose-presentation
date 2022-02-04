@@ -18,6 +18,7 @@ df = pd.read_csv(DATA_PATH.joinpath("data.csv"))
 df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
 df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
 
+# app layout
 layout = html.Div([
     html.H2("Giá trị vốn hóa thị trường cổ phiếu theo năm", style= {'textAlign': 'center'}),
     
@@ -60,12 +61,20 @@ def update_graph(year1, year2):
                 y= dff.iloc[:, 5],
                 text= dff.iloc[:, 5],
                 hover_name= dff.index,
-                color_discrete_sequence= ['dodgerblue'],
                 height= 500,
-                labels= {'y': '', 'x': '', 'Năm': ''},
-                template= 'plotly'
+                labels= {'y': '', 'x': ''},
+                template= 'presentation'
             )
     gtvh.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, hovermode= 'x')
     gtvh.update_traces(textposition= 'outside', texttemplate= "%{text:.3s}", hovertemplate=None)
-    
+    gtvh.update_layout(margin=dict(l=60, r=30, t=20, b=100))
+    gtvh.add_annotation(dict(font=dict(color='black',size=15),
+                                        x=0,
+                                        y=-0.2,
+                                        showarrow=False,
+                                        text="ĐVT: Ngàn tỷ đồng",
+                                        textangle=0,
+                                        xanchor='left',
+                                        xref="paper",
+                                        yref="paper"))
     return gtvh
