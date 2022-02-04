@@ -18,6 +18,7 @@ df = pd.read_csv(DATA_PATH.joinpath("data.csv"))
 df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
 df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
 
+# app layout
 layout = html.Div([
     html.H2("Thống kê tổng số lượng tài khoản nhà đầu tư theo năm", style= {'textAlign': 'center'}),
     
@@ -39,7 +40,7 @@ layout = html.Div([
             )
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
-    
+    html.Br(),
     dcc.Graph(
         id= 'tstk',
         figure= {}
