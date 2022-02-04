@@ -36,10 +36,10 @@ sidebar = dbc.Card([
         html.P("Sở Giao dịch Chứng khoán Thành phố Hồ Chí Minh"),
         dbc.Nav([
             dbc.NavLink('Home', href= '/apps/home', active= 'exact'),
-            dbc.NavLink('Page 1', href= '/apps/gtvh', active= 'exact'),
-            dbc.NavLink('Page 2', href= '/apps/tstk', active= 'exact'),
-            dbc.NavLink('Page 3', href= '/apps/gtgd', active= 'exact'),
-            dbc.NavLink('Page 4', href= '/apps/smck', active= 'exact')
+            dbc.NavLink('Giá trị vốn hóa', href= '/apps/gtvh', active= 'exact'),
+            dbc.NavLink('Tổng số tài khoản', href= '/apps/tstk', active= 'exact'),
+            dbc.NavLink('Giá trị giao dịch', href= '/apps/gtgd', active= 'exact'),
+            dbc.NavLink('Số mã chứng khoán', href= '/apps/smck', active= 'exact')
         ], vertical= True, pills= True)
     ]),
     dbc.CardFooter([
