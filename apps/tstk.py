@@ -61,11 +61,12 @@ def update_graph(year1, year2):
                 height= 500,
                 text= dff.iloc[:, -1],
                 hover_name= dff.index,
-                color_discrete_sequence= ['dodgerblue'],
-                labels= {'y': '', 'x': '', 'Năm': ''},
-                template= 'plotly'
+                labels= {'y': '', 'x': ''},
+                template= 'presentation'
             )
     tstk.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, hovermode= 'x')
     tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
+    tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
+    tstk.update_layout(margin=dict(l=60, r=30, t=20, b=100))
     
     return tstk
