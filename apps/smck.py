@@ -18,6 +18,7 @@ df = pd.read_csv(DATA_PATH.joinpath("data.csv"))
 df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
 df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
 
+# app layout
 layout = html.Div([
     html.H2("Số mã chứng khoán niêm yết mới theo năm", style= {'textAlign': 'center'}),
     
@@ -39,7 +40,7 @@ layout = html.Div([
             )
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
-    
+    html.Br(),
     dcc.Graph(
         id= 'smck',
         figure= {}
@@ -67,8 +68,9 @@ def update_graph(year1, year2):
             #xanchor="right",
             #x=1
             ))
-    smck.update_layout(template= 'plotly')
+    smck.update_layout(template= 'presentation')
     smck.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, 
                            height= 500)
+    smck.update_layout(margin=dict(l=60, r=30, t=20, b=100))
     
     return smck
