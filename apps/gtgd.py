@@ -18,6 +18,7 @@ df = pd.read_csv(DATA_PATH.joinpath("data.csv"))
 df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
 df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
 
+# app layout
 layout = html.Div([
     html.H2("Thống kê giá trị giao dịch cổ phiếu theo năm", style= {'textAlign': 'center'}),
     
@@ -39,7 +40,7 @@ layout = html.Div([
             )
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
-    
+    html.Br(),
     dcc.Graph(
         id= 'gtgd',
         figure= {}
@@ -86,7 +87,7 @@ def update_graph(year1, year2):
     gtgd.for_each_trace(lambda t: t.update(name= newnames[t.name],
                                        legendgroup= newnames[t.name]))
     gtgd.update_layout(
-            template= 'plotly',
+            template= 'presentation',
             legend= dict(
                 orientation= "h",
                 #yanchor= "top",
@@ -97,4 +98,15 @@ def update_graph(year1, year2):
         )
     gtgd.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, 
                            height= 500)
+    gtgd.update_layout(margin=dict(l=60, r=30, t=20, b=100))
+    gtgd.add_annotation(dict(font=dict(color='black',size=15),
+                                        x=0,
+                                        y=-0.2,
+                                        showarrow=False,
+                                        text="ĐVT: Ngàn tỷ đồng",
+                                        textangle=0,
+                                        #xanchor='left',
+                                        xref="paper",
+                                        yref="paper"))
+    
     return gtgd
