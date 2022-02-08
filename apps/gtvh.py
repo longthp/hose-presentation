@@ -41,10 +41,16 @@ layout = html.Div([
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
     html.Br(),
-    dcc.Graph(
+    html.Div([
+        dcc.Graph(
         id= 'gtvh',
-        figure= {}
-    )
+        figure= {},
+        config= {
+            'displaylogo': False,
+            'displayModeBar': False
+            }
+        )
+    ])
 ])
 
 @app.callback(
@@ -62,12 +68,15 @@ def update_graph(year1, year2):
                 text= dff.iloc[:, 5],
                 hover_name= dff.index,
                 height= 500,
-                labels= {'y': '', 'x': ''},
-                template= 'presentation'
+                labels= {'y': '', 'x': '', 'Năm': ''},
+                template= 'plotly_white'
             )
-    gtvh.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, hovermode= 'x')
+    gtvh.update_layout(
+        hovermode= 'x',
+        margin= dict(l=60, r=30, t=20, b=100), 
+        yaxis= dict(fixedrange= True)
+    )
     gtvh.update_traces(textposition= 'outside', texttemplate= "%{text:.3s}", hovertemplate=None)
-    gtvh.update_layout(margin=dict(l=60, r=30, t=20, b=100))
     gtvh.add_annotation(dict(font=dict(color='black',size=15),
                                         x=0,
                                         y=-0.2,

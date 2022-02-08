@@ -41,10 +41,16 @@ layout = html.Div([
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
     html.Br(),
-    dcc.Graph(
+    html.Div([
+        dcc.Graph(
         id= 'tstk',
-        figure= {}
-    )
+        figure= {},
+        config= {
+            'displaylogo': False,
+            'displayModeBar': False
+            }
+        )
+    ])
 ])
 
 @app.callback(
@@ -62,12 +68,14 @@ def update_graph(year1, year2):
                 height= 500,
                 text= dff.iloc[:, -1],
                 hover_name= dff.index,
-                labels= {'y': '', 'x': ''},
-                template= 'presentation'
+                labels= {'y': '', 'x': '', 'Năm': ''},
+                template= 'plotly_white'
             )
-    tstk.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, hovermode= 'x')
+    tstk.update_layout(
+        hovermode= 'x',
+        margin= dict(l=60, r=30, t=20, b=100), 
+        yaxis= dict(fixedrange= True)
+    )
     tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
-    tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
-    tstk.update_layout(margin=dict(l=60, r=30, t=20, b=100))
     
     return tstk

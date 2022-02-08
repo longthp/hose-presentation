@@ -41,10 +41,16 @@ layout = html.Div([
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
     html.Br(),
-    dcc.Graph(
-        id= 'smck',
-        figure= {}
-    )
+    html.Div([
+        dcc.Graph(
+            id= 'smck',
+            figure= {},
+            config= {
+                'displaylogo': False,
+                'displayModeBar': False
+            }
+        )
+    ])
 ])
 
 @app.callback(
@@ -61,16 +67,16 @@ def update_graph(year1, year2):
         smck.add_trace(
                 go.Bar(x= dff.index, y= dff.loc[:, col], name= col)
             )
-    smck.update_layout(legend=dict(
+
+    smck.update_layout(
+        template= 'plotly_white',
+        height= 500,
+        margin=dict(l=60, r=30, t=20, b=100), 
+        yaxis= dict(fixedrange= True),
+        legend= dict(
             orientation= 'h',
-            #yanchor="top",
-            y=-0.2,
-            #xanchor="right",
-            #x=1
-            ))
-    smck.update_layout(template= 'presentation')
-    smck.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, 
-                           height= 500)
-    smck.update_layout(margin=dict(l=60, r=30, t=20, b=100))
+            y= -0.2
+        )
+    )
     
     return smck

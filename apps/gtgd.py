@@ -14,9 +14,9 @@ PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("../datasets").resolve()
 
 df = pd.read_csv(DATA_PATH.joinpath("data.csv"))
-
-df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
-df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
+df = df.set_index("Năm")
+# df.iloc[1:, -1] = df.iloc[1:, -1].apply(lambda x: x.replace(',', ''))
+# df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1])
 
 # app layout
 layout = html.Div([
@@ -26,7 +26,7 @@ layout = html.Div([
         html.Div([
             dcc.Dropdown(
                 id= 'year-dpdn1',
-                options= [{'label': i, 'value': i} for i in df['Năm']],
+                options= [{'label': i, 'value': i} for i in df.index],
                 value= '7/28/2000',
                 clearable= False,
             )
@@ -34,50 +34,62 @@ layout = html.Div([
         html.Div([
             dcc.Dropdown(
                 id= 'year-dpdn2',
-                options= [{'label': i, 'value': i} for i in df['Năm']],
+                options= [{'label': i, 'value': i} for i in df.index],
                 value= '6/1/2021',
                 clearable= False
             )
         ], style={'width': '49%', 'display': 'inline-block'})
     ], className= 'row'),
-    html.Br(),
-    dcc.Graph(
-        id= 'gtgd',
-        figure= {}
-    )
+    #html.Br(),
+    html.Div([
+        dcc.Checklist(
+            id= 'check-list',
+            options= [
+                    {'label': 'Tổng GTGD', 'value': 'Tổng GTGD cổ phiếu (ngàn tỷ đồng)'},
+                    {'label': 'GTGD Bình quân', 'value': 'GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)'},
+                    {'label': 'GTGD Mua', 'value': 'GTGD Mua cổ phiếu của NĐTNN (ngàn tỷ đồng)'},
+                    {'label': 'GTGD Bán', 'value': 'GTGD Bán cổ phiếu của NĐTNN (ngàn tỷ đồng)'}
+                ],
+            value= df.columns[6:10],
+            style={'display':'flex', 'align-items': 'center', 'justify-content': 'center'},
+            inputStyle={'cursor':'pointer', 'margin-right': '10px'},
+            labelStyle={'background':'white',
+                        'padding':'0.5rem 1rem',
+                        'border-radius':'0.25rem',
+                        'margin-right': '5px',
+                        },
+        )
+    ], className= 'row mt-2'),
+    #html.Br(),
+    html.Div([
+        dcc.Graph(
+            id= 'gtgd',
+            figure= {},
+            config= {
+    'displaylogo': False,
+    'displayModeBar': False
+            }
+        ),
+    ], className= 'mt-2')
 ])
 
 @app.callback(
     Output('gtgd', 'figure'),
     [Input('year-dpdn1', 'value'),
-     Input('year-dpdn2', 'value')]
+     Input('year-dpdn2', 'value'),
+     Input('check-list', 'value')]
 )
-def update_graph(year1, year2):
-    dff = df.set_index("Năm").loc[year1: year2]
+def update_graph(year1, year2, checkitem):
+    dff = df.loc[year1: year2, df.columns.isin(checkitem)]
     
-    gtgd = make_subplots(specs= [[{"secondary_y": True}]])
+    gtgd = go.Figure()
     
-    for col in dff.columns[6:10]:
-        if col == "GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)":
-            gtgd.add_trace(
-                go.Scatter(
-                    #dff,
-                    x= dff.index,
-                    y= dff['GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)'],
-                    name= 'GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)',
-                    mode= 'lines'),
-                secondary_y= True
-                )
+    for col in dff.columns:
+        if col != "GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)":
+            gtgd.add_trace(go.Bar(x= dff.index, y= dff.loc[:, col], name= col))
         else:
-            gtgd.add_trace(
-                go.Bar(
-                    #dff,
-                    x= dff.index,
-                    y= dff.loc[:, col],
-                    name= col
-                ),
-                secondary_y= False
-            )
+            gtgd.add_trace(go.Scatter(x= dff.index, y= dff.loc[:, col], name= col, mode= 'lines', yaxis= 'y2'))
+    
     newnames = {
     'Tổng GTGD cổ phiếu (ngàn tỷ đồng)': "Tổng GTGD",
     'GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)': "GTGD Bình quân",
@@ -86,19 +98,26 @@ def update_graph(year1, year2):
     }
     gtgd.for_each_trace(lambda t: t.update(name= newnames[t.name],
                                        legendgroup= newnames[t.name]))
-    gtgd.update_layout(
-            template= 'presentation',
-            legend= dict(
-                orientation= "h",
-                #yanchor= "top",
-                y= -0.2,
-                #xanchor= "center",
-                #x= 0.5
-            )
+    
+    if "Tổng GTGD cổ phiếu (ngàn tỷ đồng)" not in checkitem:
+        gtgd.update_layout(
+            yaxis2= dict(range= [0, 20], 
+                    overlaying= 'y', side= 'right',
+                    dtick= 20/5, fixedrange= True),
+            yaxis= dict(range= [0, 300], dtick= 300/5, fixedrange= True)
         )
-    gtgd.update_layout(title={'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}, 
-                           height= 500)
-    gtgd.update_layout(margin=dict(l=60, r=30, t=20, b=100))
+    else:
+        gtgd.update_layout(
+        yaxis2= dict(range= [0, 20], 
+                    overlaying= 'y', side= 'right',
+                    dtick= 20/5, fixedrange= True),
+        yaxis= dict(range= [0, 2500], dtick= 2500/5, fixedrange= True)
+    )
+
+
+    gtgd.update_layout(margin=dict(l=60, r=30, t=20, b=100), height= 500, 
+                       legend= dict(orientation = 'h', y= 1, x= 0.5, yanchor= 'top', xanchor= 'center'),
+                       template= 'plotly_white')
     gtgd.add_annotation(dict(font=dict(color='black',size=15),
                                         x=0,
                                         y=-0.2,
