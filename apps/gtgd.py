@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
@@ -80,52 +81,63 @@ layout = html.Div([
      Input('check-list', 'value')]
 )
 def update_graph(year1, year2, checkitem):
-    dff = df.loc[year1: year2, df.columns.isin(checkitem)]
-    
-    gtgd = go.Figure()
-    
-    for col in dff.columns:
-        if col != "GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)":
-            gtgd.add_trace(go.Bar(x= dff.index, y= dff.loc[:, col], name= col))
+    if pd.to_datetime(year1) <= pd.to_datetime(year2):
+        dff = df.loc[year1: year2, df.columns.isin(checkitem)]
+        
+        traceColors= ['#636EFA', '#EF553B', '#00CC96', '#AB63FA']
+        colorMap = {col: i for col, i in zip(df.columns[6:10], traceColors)}
+        
+        gtgd = go.Figure()
+        
+        for col in dff.columns:
+            if col != "GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)":
+                gtgd.add_trace(go.Bar(x= dff.index, y= dff.loc[:, col], name= col,
+                                      marker= dict(color= colorMap[col])))
+            else:
+                gtgd.add_trace(go.Scatter(x= dff.index, y= dff.loc[:, col], 
+                                          name= col, mode= 'lines', yaxis= 'y2',
+                                          marker= dict(color= colorMap[col])))
+        
+        newnames = {
+        'Tổng GTGD cổ phiếu (ngàn tỷ đồng)': "Tổng GTGD",
+        'GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)': "GTGD Bình quân",
+        'GTGD Mua cổ phiếu của NĐTNN (ngàn tỷ đồng)': "GTGD Mua",
+        'GTGD Bán cổ phiếu của NĐTNN (ngàn tỷ đồng)': "GTGD Bán"
+        }
+        gtgd.for_each_trace(lambda t: t.update(name= newnames[t.name],
+                                           legendgroup= newnames[t.name]))
+        
+        if "Tổng GTGD cổ phiếu (ngàn tỷ đồng)" not in checkitem:
+            gtgd.update_layout(
+                yaxis2= dict(range= [0, 20], 
+                        overlaying= 'y', side= 'right',
+                        dtick= 20/5, fixedrange= True),
+                yaxis= dict(range= [0, 300], dtick= 300/5, fixedrange= True)
+            )
         else:
-            gtgd.add_trace(go.Scatter(x= dff.index, y= dff.loc[:, col], name= col, mode= 'lines', yaxis= 'y2'))
-    
-    newnames = {
-    'Tổng GTGD cổ phiếu (ngàn tỷ đồng)': "Tổng GTGD",
-    'GTGD Bình quân phiên cổ phiếu (ngàn tỷ đồng)': "GTGD Bình quân",
-    'GTGD Mua cổ phiếu của NĐTNN (ngàn tỷ đồng)': "GTGD Mua",
-    'GTGD Bán cổ phiếu của NĐTNN (ngàn tỷ đồng)': "GTGD Bán"
-    }
-    gtgd.for_each_trace(lambda t: t.update(name= newnames[t.name],
-                                       legendgroup= newnames[t.name]))
-    
-    if "Tổng GTGD cổ phiếu (ngàn tỷ đồng)" not in checkitem:
-        gtgd.update_layout(
+            gtgd.update_layout(
             yaxis2= dict(range= [0, 20], 
-                    overlaying= 'y', side= 'right',
-                    dtick= 20/5, fixedrange= True),
-            yaxis= dict(range= [0, 300], dtick= 300/5, fixedrange= True)
+                        overlaying= 'y', side= 'right',
+                        dtick= 20/5, fixedrange= True),
+            yaxis= dict(range= [0, 2500], dtick= 2500/5, fixedrange= True)
         )
-    else:
-        gtgd.update_layout(
-        yaxis2= dict(range= [0, 20], 
-                    overlaying= 'y', side= 'right',
-                    dtick= 20/5, fixedrange= True),
-        yaxis= dict(range= [0, 2500], dtick= 2500/5, fixedrange= True)
-    )
 
 
-    gtgd.update_layout(margin=dict(l=60, r=30, t=20, b=100), height= 500, 
-                       legend= dict(orientation = 'h', y= 1, x= 0.5, yanchor= 'top', xanchor= 'center'),
-                       template= 'plotly_white')
-    gtgd.add_annotation(dict(font=dict(color='black',size=15),
-                                        x=0,
-                                        y=-0.2,
-                                        showarrow=False,
-                                        text="ĐVT: Ngàn tỷ đồng",
-                                        textangle=0,
-                                        #xanchor='left',
-                                        xref="paper",
-                                        yref="paper"))
+        gtgd.update_layout(margin=dict(l=60, r=30, t=20, b=100), height= 500, 
+                           legend= dict(orientation = 'h', y= 1, x= 0.5, yanchor= 'top', xanchor= 'center',
+                                        itemclick= False),
+                           template= 'plotly_white')
+        gtgd.add_annotation(dict(font=dict(color='black',size=15),
+                                            x=0,
+                                            y=-0.25,
+                                            showarrow=False,
+                                            text="ĐVT: Ngàn tỷ đồng",
+                                            textangle=0,
+                                            #xanchor='left',
+                                            xref="paper",
+                                            yref="paper"))
+        
+        return gtgd
     
-    return gtgd
+    elif pd.to_datetime(year1) > pd.to_datetime(year2):
+        raise dash.exceptions.PreventUpdate

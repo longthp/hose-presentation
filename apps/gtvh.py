@@ -59,31 +59,35 @@ layout = html.Div([
      Input('year-dpdn2', 'value')]
 )
 def update_graph(year1, year2):
-    dff = df.set_index("Năm").loc[year1:year2]
+    if pd.to_datetime(year1) <= pd.to_datetime(year2):
+        dff = df.set_index("Năm").loc[year1:year2]
+        
+        gtvh = px.bar(
+                    dff,
+                    x= dff.index, 
+                    y= dff.iloc[:, 5],
+                    text= dff.iloc[:, 5],
+                    hover_name= dff.index,
+                    height= 500,
+                    labels= {'y': '', 'x': '', 'Năm': ''},
+                    template= 'plotly_white'
+                )
+        gtvh.update_layout(
+            hovermode= 'x',
+            margin= dict(l=60, r=30, t=20, b=100), 
+            yaxis= dict(fixedrange= True)
+        )
+        gtvh.update_traces(textposition= 'outside', texttemplate= "%{text:.3s}", hovertemplate=None)
+        gtvh.add_annotation(dict(font=dict(color='black',size=15),
+                                            x=0,
+                                            y=-0.25,
+                                            showarrow=False,
+                                            text="ĐVT: Ngàn tỷ đồng",
+                                            textangle=0,
+                                            xanchor='left',
+                                            xref="paper",
+                                            yref="paper"))
+        return gtvh
     
-    gtvh = px.bar(
-                dff,
-                x= dff.index, 
-                y= dff.iloc[:, 5],
-                text= dff.iloc[:, 5],
-                hover_name= dff.index,
-                height= 500,
-                labels= {'y': '', 'x': '', 'Năm': ''},
-                template= 'plotly_white'
-            )
-    gtvh.update_layout(
-        hovermode= 'x',
-        margin= dict(l=60, r=30, t=20, b=100), 
-        yaxis= dict(fixedrange= True)
-    )
-    gtvh.update_traces(textposition= 'outside', texttemplate= "%{text:.3s}", hovertemplate=None)
-    gtvh.add_annotation(dict(font=dict(color='black',size=15),
-                                        x=0,
-                                        y=-0.2,
-                                        showarrow=False,
-                                        text="ĐVT: Ngàn tỷ đồng",
-                                        textangle=0,
-                                        xanchor='left',
-                                        xref="paper",
-                                        yref="paper"))
-    return gtvh
+    elif pd.to_datetime(year1) > pd.to_datetime(year2):
+        raise dash.exceptions.PreventUpdate

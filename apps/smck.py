@@ -59,24 +59,29 @@ layout = html.Div([
      Input('year-dpdn2', 'value')]
 )
 def update_graph(year1, year2):
-    dff = df.set_index("Năm").loc[year1: year2]
-    
-    smck = make_subplots(specs= [[{"secondary_y": False}]])
+    if pd.to_datetime(year1) <= pd.to_datetime(year2):
+        dff = df.set_index("Năm").loc[year1: year2]
+        
+        smck = make_subplots(specs= [[{"secondary_y": False}]])
 
-    for col in dff.columns[0:5]:
-        smck.add_trace(
-                go.Bar(x= dff.index, y= dff.loc[:, col], name= col)
+        for col in dff.columns[0:5]:
+            smck.add_trace(
+                    go.Bar(x= dff.index, y= dff.loc[:, col], name= col)
+                )
+
+        smck.update_layout(
+            template= 'plotly_white',
+            height= 500,
+            margin=dict(l=60, r=30, t=20, b=100), 
+            yaxis= dict(fixedrange= True),
+            legend= dict(
+                orientation= 'h',
+                y= 1, x= 0.5, 
+                yanchor= 'top', xanchor= 'center'
             )
-
-    smck.update_layout(
-        template= 'plotly_white',
-        height= 500,
-        margin=dict(l=60, r=30, t=20, b=100), 
-        yaxis= dict(fixedrange= True),
-        legend= dict(
-            orientation= 'h',
-            y= -0.2
         )
-    )
+        
+        return smck
     
-    return smck
+    elif pd.to_datetime(year1) > pd.to_datetime(year2):
+        raise dash.exceptions.PreventUpdate

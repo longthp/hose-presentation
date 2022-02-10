@@ -59,23 +59,27 @@ layout = html.Div([
      Input('year-dpdn2', 'value')]
 )
 def update_graph(year1, year2):
-    dff = df.set_index("Năm").loc[year1:year2]
+    if pd.to_datetime(year1) <= pd.to_datetime(year2):
+        dff = df.set_index("Năm").loc[year1:year2]
+        
+        tstk = px.bar(
+                    dff,
+                    x= dff.index, 
+                    y= dff.iloc[:, -1],
+                    height= 500,
+                    text= dff.iloc[:, -1],
+                    hover_name= dff.index,
+                    labels= {'y': '', 'x': '', 'Năm': ''},
+                    template= 'plotly_white'
+                )
+        tstk.update_layout(
+            hovermode= 'x',
+            margin= dict(l=60, r=30, t=20, b=100), 
+            yaxis= dict(fixedrange= True)
+        )
+        tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
+        
+        return tstk
     
-    tstk = px.bar(
-                dff,
-                x= dff.index, 
-                y= dff.iloc[:, -1],
-                height= 500,
-                text= dff.iloc[:, -1],
-                hover_name= dff.index,
-                labels= {'y': '', 'x': '', 'Năm': ''},
-                template= 'plotly_white'
-            )
-    tstk.update_layout(
-        hovermode= 'x',
-        margin= dict(l=60, r=30, t=20, b=100), 
-        yaxis= dict(fixedrange= True)
-    )
-    tstk.update_traces(textposition= 'outside', texttemplate= "%{text:.2s}", hovertemplate= None)
-    
-    return tstk
+    elif pd.to_datetime(year1) > pd.to_datetime(year2):
+        raise dash.exceptions.PreventUpdate
