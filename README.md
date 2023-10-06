@@ -1,14 +1,14 @@
-# Small Dashboard Project
-## Link to the web app:
+# Presentation Dashboard App
+## Link to the web app (free heroku no longer works):
 https://hosecharts.herokuapp.com/apps/home
 
 ## Features demo:
-![Alt Text](/assets/demo.gif)
+![Dashboard Demo](/assets/demo.gif)
 
 ## About the project:
-### 1. What is this exactly?
-  * Interactive **[web app/dash board](https://hosecharts.herokuapp.com/apps/home)** showcasing summary statistics.
-### 2. What tools are being used?
-  * **[Plotly Dash](https://github.com/plotly/dash)** framework.
-### 3. What is the motivation behind this project?
-  * To **enhance** traditional Power Point slides experience and to give viewers more power to explore the contents.
+### 1. Functions
+  * A **[web application/dashboard](/assets/demo.gif)** with sidebar and multi-page setup.
+  * Interactively showcasing HOSE Stock Exchange summary statistics.
+### 2. Tools
+  * **[Plotly Dash](https://github.com/plotly/dash)** framework
+  * [Heroku](https://www.heroku.com)
